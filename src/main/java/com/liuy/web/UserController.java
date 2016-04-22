@@ -19,7 +19,7 @@ public class UserController {
 	 * 
 	 * http://127.0.0.1:8080/get-by-email?email=liuy@gmail.com
 	 * 
-	 * SQl数据：
+	 * SQL数据：
 	 * 
 	 * 	INSERT INTO users(id, email, name) VALUES (1, 'liuy@gmail.com', '大牛1');
 	 * 	INSERT INTO users(id, email, name) VALUES (2, 'liuy2@gmail.com', '大牛2');
