@@ -1,16 +1,19 @@
 package com.liuy;
 
 import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+
 import com.liuy.wx.tools.ApiConfig;
 import com.liuy.wx.tools.ApiConfigKitbb;
 import com.liuy.wx.tools.ApiConfigService;
@@ -50,6 +53,7 @@ public class MsgToTencentApplication{
 		
 		//liuy add
 		ApplicationContext ctx = SpringApplication.run(MsgToTencentApplication.class, args);
+	
 		//System.out.println("检查一下 Spring Boot 提供的  bean: ");		
 		//ctx.getBean(ApiConfigKit.class).setApiConfig("123"); // <-- here		
 		String[] beanNames = ctx.getBeanDefinitionNames();

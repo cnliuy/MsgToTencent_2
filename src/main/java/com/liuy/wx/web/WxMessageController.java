@@ -1,8 +1,13 @@
 package com.liuy.wx.web;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,6 +15,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.SocketUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+
+
 import com.liuy.wx.sdk.msg.InMsgParaser;
 import com.liuy.wx.sdk.msg.OutMsgXmlBuilder;
 import com.liuy.wx.sdk.msg.in.InImageMsg;
@@ -34,8 +42,10 @@ import com.liuy.wx.tools.ApiConfig;
 import com.liuy.wx.tools.ApiConfigKit;
 import com.liuy.wx.tools.ApiConfigKitbb;
 import com.liuy.wx.tools.ApiConfigService;
+import com.liuy.wx.tools.EncryptionKit;
 import com.liuy.wx.tools.HttpKit;
 import com.liuy.wx.tools.MsgEncryptKit; 
+import com.liuy.wx.tools.StrKit;
 
 
 
@@ -92,10 +102,10 @@ public class WxMessageController {
 	private MsgEncryptKit msgEncryptKit;
 
 	public String getInMsgXml(HttpServletRequest req , String timestamp,String nonce,String msg_signature) {
-		
+
 		if (inMsgXml == null) {
 			inMsgXml = HttpKit.readIncommingRequestData(req);
-			
+			System.out.println("-------WxMessageController in getInMsgXml():"+inMsgXml);
 			// 是否需要解密消息
 			if (ApiConfigKitbb.getApiConfig().isMessageencrypt()) {
 				inMsgXml = msgEncryptKit.decrypt(inMsgXml,timestamp,nonce,msg_signature);
@@ -105,7 +115,34 @@ public class WxMessageController {
 	}
 	
 	
-
+	/**
+	 * php 示例
+	 *  $signature = $_GET["signature"];
+        $timestamp = $_GET["timestamp"];
+        $nonce = $_GET["nonce"];	
+        		
+		$token = TOKEN;
+		$tmpArr = array($token, $timestamp, $nonce);
+		sort($tmpArr, SORT_STRING);
+		$tmpStr = implode( $tmpArr );
+		$tmpStr = sha1( $tmpStr );
+		
+		if( $tmpStr == $signature ){
+			return true;
+		}else{
+			return false;
+		}
+	 * @return
+	 */
+	public boolean checkSignature(String token, String signature, String timestamp, String nonce) {
+		String TOKEN = token;
+		String array[] = {TOKEN, timestamp, nonce};
+		Arrays.sort(array);
+		String tempStr = new StringBuilder().append(array[0] + array[1] + array[2]).toString();
+		tempStr = EncryptionKit.sha1Encrypt(tempStr);
+		return tempStr.equalsIgnoreCase(signature);
+	}
+	
 	
 	
 	/**
@@ -138,7 +175,11 @@ public class WxMessageController {
 	public @ResponseBody String welcome(Map<String, Object> model , HttpServletRequest request) {
 				
 		ApiConfig apiConfig = apiConfigService.gogetApiConfig() ;
-		System.out.println("----0000==a111=="+apiConfig.getAppid() );		 
+		String token = apiConfig.getToken();
+		System.out.println("----appid=="+apiConfig.getAppid() );	
+		System.out.println("----appsecret=="+apiConfig.getAppsecret() );
+		System.out.println("----encodingaeskey=="+apiConfig.getEncodingaeskey() );
+		System.out.println("----token=="+token );
 		//String s1 = apiConfigService.getAppid();
 		//String s2 = apiConfigService.getAppsecret();
 		//System.out.println("----0000==s1=="+s1 );
@@ -156,7 +197,40 @@ public class WxMessageController {
 		System.out.println("timestamp:"+timestamp);
 		String nonce = request.getParameter("nonce");
 		System.out.println("nonce:"+nonce);
-		String msg_signature = request.getParameter("msg_signature");		
+		//signature  msg_signature
+		String msg_signature = request.getParameter("signature");	
+		System.out.println("msg_signature:"+msg_signature);
+//		try {
+//			BufferedReader reader1111 = request.getReader();
+//			System.out.print("reader1111:"+reader1111.toString());
+//		} catch (IOException e) {
+//			
+//			e.printStackTrace();
+//		}
+		if (StrKit.isBlank(msg_signature) || StrKit.isBlank(timestamp) || StrKit.isBlank(nonce)) {
+			//--controller.renderText("check signature failure");
+			//--return false;
+		}
+		
+		
+		if (checkSignature(token ,msg_signature, timestamp, nonce)) {
+			System.out.println("-------ture----");
+		}
+		String echostr = request.getParameter("echostr");
+		
+		
+		BufferedReader rd;
+		try {
+			rd = request.getReader();
+			String str123;
+			while ( (str123=rd.readLine())!=null) {
+				System.out.println("000:  "+str123);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
 		String inmsgXml00= getInMsgXml(request,timestamp,nonce,msg_signature) ;		
 		System.out.println("inmsgXml00:"+inmsgXml00);		
 		System.out.println("可在此处存入数据库");
@@ -170,13 +244,12 @@ public class WxMessageController {
 		// 解析消息并根据消息类型分发到相应的处理方法
 		
 		InMsg msg = InMsgParaser.parse(inmsgXml00); 
-		System.out.println("222====="+msg.getMsgType());
+		//System.out.println("222====="+msg.getMsgType());
 		String resultStr = "" ;
 		if (msg instanceof InTextMsg){
 			System.out.println("in---------");
 			resultStr = processInTextMsg((InTextMsg)msg , timestamp , nonce);	
-		}
-		
+		}		
 		if (msg instanceof InTextMsg)
 			resultStr = processInTextMsg((InTextMsg)msg , timestamp , nonce);	
 		else if (msg instanceof InImageMsg)
@@ -206,7 +279,7 @@ public class WxMessageController {
 		
 		
 		System.out.println("resultStr:"+resultStr);
-		//resultStr="999";
+		resultStr=echostr;;
 		return resultStr;
 	}
 	

@@ -237,15 +237,18 @@ public class HttpKit {
 		return sb.toString();
 	}
 	
-	public static String readIncommingRequestData(HttpServletRequest request) {
+	public static String readIncommingRequestData(HttpServletRequest req) {
 		BufferedReader br = null;
 		try {
 			StringBuilder result = new StringBuilder();
-			br = request.getReader();
+			br = req.getReader();
+			System.out.println("-------br-----"+br.toString());
 			for (String line=null; (line=br.readLine())!=null;) {
 				result.append(line).append("\n");
 			}
 			
+			
+			System.out.println("-------br2-----"+result.toString());
 			return result.toString();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
