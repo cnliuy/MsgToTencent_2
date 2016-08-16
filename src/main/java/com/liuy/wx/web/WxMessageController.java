@@ -234,22 +234,20 @@ public class WxMessageController {
 		String inmsgXml00= getInMsgXml(request,timestamp,nonce,msg_signature) ;		
 		System.out.println("inmsgXml00:"+inmsgXml00);		
 		System.out.println("可在此处存入数据库");
-		inmsgXml00="<xml><ToUserName><![CDATA[gh_7e89261c75cf]]></ToUserName>"
-				+ "<FromUserName><![CDATA[oNxqNwR4ydOPSZNAFtIHJ28-zmL4]]></FromUserName>"
-				+ "<CreateTime>1460792070</CreateTime>"
-				+ "<MsgType><![CDATA[event]]></MsgType>"
-				+ "<Event><![CDATA[unsubscribe]]></Event>"
-				+ "<EventKey><![CDATA[]]></EventKey>"
-				+ "</xml>";
+		//inmsgXml00="<xml><ToUserName><![CDATA[gh_7e89261c75cf]]></ToUserName>"
+		//		+ "<FromUserName><![CDATA[oNxqNwR4ydOPSZNAFtIHJ28-zmL4]]></FromUserName>"
+		//		+ "<CreateTime>1460792070</CreateTime>"
+		//		+ "<MsgType><![CDATA[event]]></MsgType>"
+		//		+ "<Event><![CDATA[unsubscribe]]></Event>"
+		//		+ "<EventKey><![CDATA[]]></EventKey>"
+		//		+ "</xml>";
+		
 		// 解析消息并根据消息类型分发到相应的处理方法
 		
 		InMsg msg = InMsgParaser.parse(inmsgXml00); 
 		//System.out.println("222====="+msg.getMsgType());
 		String resultStr = "" ;
-		if (msg instanceof InTextMsg){
-			System.out.println("in---------");
-			resultStr = processInTextMsg((InTextMsg)msg , timestamp , nonce);	
-		}		
+	
 		if (msg instanceof InTextMsg)
 			resultStr = processInTextMsg((InTextMsg)msg , timestamp , nonce);	
 		else if (msg instanceof InImageMsg)
@@ -277,10 +275,11 @@ public class WxMessageController {
 			System.out.println("未能识别的消息类型。 消息 xml 内容为：\n" +inmsgXml00);	
 		}
 		
+		//resultStr=echostr;
+		System.out.println("resultStr:"+resultStr);		
+		model.put("resultStr", resultStr);
 		
-		System.out.println("resultStr:"+resultStr);
-		resultStr=echostr;;
-		return resultStr;
+		return "msgresult";
 	}
 	
 	

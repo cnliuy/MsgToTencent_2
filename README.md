@@ -13,3 +13,5 @@ spring boot 快速构建代码网站 http://start.spring.io/ （spring boot 代�
 
 ###版本0.11：  0422
 ---- 可以读取微信传递的消息
+
+###版本0.12：  0816
