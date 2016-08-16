@@ -278,7 +278,9 @@ public class WxMessageController {
 		//resultStr=echostr;
 		System.out.println("resultStr:"+resultStr);		
 		model.put("resultStr", resultStr);
-		
+		if("".equals(resultStr)|| resultStr==null ){
+			resultStr = "空值";
+		}
 		return "msgresult";
 	}
 	
