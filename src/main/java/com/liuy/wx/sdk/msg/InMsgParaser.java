@@ -193,7 +193,7 @@ public class InMsgParaser {
 	}
 	
 	@SuppressWarnings("unused")
-	public static void main(String[] args) throws DocumentException {
+	public static void main_test(String[] args) throws DocumentException {
 		String xml = 
 			"<xml>\n" +
 				"<ToUserName><![CDATA[James]]></ToUserName>\n" +

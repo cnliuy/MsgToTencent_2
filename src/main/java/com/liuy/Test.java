@@ -9,7 +9,7 @@ public class Test {
     public static int _i; 
     
     
-    public static void main(String[] args) {  
+    public static void main_test(String[] args) {  
         System.out.println(_i);  
     }  
 } 

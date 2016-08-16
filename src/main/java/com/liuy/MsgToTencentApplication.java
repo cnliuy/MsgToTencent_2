@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
@@ -44,7 +45,7 @@ import com.liuy.wx.tools.ApiConfigService;
 @SpringBootApplication
 //@EnableConfigurationProperties({WiselySettings.class,Wisely2Settings.class})  
 //@EnableConfigurationProperties({ApiConfigService.class})  
-public class MsgToTencentApplication{	
+public class MsgToTencentApplication   extends SpringBootServletInitializer{	
 	
 	
 	
@@ -56,15 +57,18 @@ public class MsgToTencentApplication{
 	
 		//System.out.println("检查一下 Spring Boot 提供的  bean: ");		
 		//ctx.getBean(ApiConfigKit.class).setApiConfig("123"); // <-- here		
-		String[] beanNames = ctx.getBeanDefinitionNames();
-		Arrays.sort(beanNames);
-		for (String beanName : beanNames) {
+		//String[] beanNames = ctx.getBeanDefinitionNames();
+		//Arrays.sort(beanNames);
+		//for (String beanName : beanNames) {
 			//System.out.println(beanName);
-		}
+		//}
 		
 	}
 	
-
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(MsgToTencentApplication.class);
+    }
 	
 	
 }

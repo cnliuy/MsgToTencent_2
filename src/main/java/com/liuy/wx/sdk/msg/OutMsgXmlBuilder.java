@@ -103,7 +103,7 @@ public class OutMsgXmlBuilder {
 		return encoding;
 	}
 	
-	public static void main(String[] args) {
+	public static void main_test(String[] args) {
 		OutTextMsg msg = new OutTextMsg();
 		msg.setToUserName("to james");
 		msg.setFromUserName("from james");
