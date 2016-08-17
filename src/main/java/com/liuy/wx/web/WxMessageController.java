@@ -171,6 +171,14 @@ public class WxMessageController {
 	//@Autowired
 	//private ApiConfigKit apiConfigKit;
 	
+	
+	
+	/**
+	 * 
+	 * test url:
+	 * http://127.0.0.1/MsgtoTence/WxMessage?timestamp=1471417328&nonce=295365186&signature=bb9eb5afd7beeac10760408018a47f5a729922fd
+	 * 
+	 * */
 	@RequestMapping("/WxMessage")
 	public @ResponseBody String welcome(Map<String, Object> model , HttpServletRequest request) {
 				
@@ -212,13 +220,15 @@ public class WxMessageController {
 			//--return false;
 		}
 		
-		
+
+		String nonce_backshow="";
 		if (checkSignature(token ,msg_signature, timestamp, nonce)) {
-			System.out.println("-------ture----");
-		}
-		String echostr = request.getParameter("echostr");
-		
-		
+			System.out.println("-------ture----nonce:"+nonce);
+			String echostr = request.getParameter("echostr");
+			System.out.println("-------echostr----:"+echostr);
+			nonce_backshow = echostr ;
+		}		
+		/**
 		BufferedReader rd;
 		try {
 			rd = request.getReader();
@@ -229,8 +239,7 @@ public class WxMessageController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		
+		*/		
 		String inmsgXml00= getInMsgXml(request,timestamp,nonce,msg_signature) ;		
 		System.out.println("inmsgXml00:"+inmsgXml00);		
 		System.out.println("可在此处存入数据库");
@@ -241,47 +250,51 @@ public class WxMessageController {
 		//		+ "<Event><![CDATA[unsubscribe]]></Event>"
 		//		+ "<EventKey><![CDATA[]]></EventKey>"
 		//		+ "</xml>";
-		
-		// 解析消息并根据消息类型分发到相应的处理方法
-		
-		InMsg msg = InMsgParaser.parse(inmsgXml00); 
-		//System.out.println("222====="+msg.getMsgType());
 		String resultStr = "" ;
-	
-		if (msg instanceof InTextMsg)
-			resultStr = processInTextMsg((InTextMsg)msg , timestamp , nonce);	
-		else if (msg instanceof InImageMsg)
-			resultStr = processInImageMsg((InImageMsg)msg , timestamp , nonce);
-		else if (msg instanceof InVoiceMsg)
-			resultStr = processInVoiceMsg((InVoiceMsg)msg, timestamp , nonce);
-		else if (msg instanceof InVideoMsg)
-			resultStr = processInVideoMsg((InVideoMsg)msg, timestamp , nonce);
-		else if (msg instanceof InLocationMsg)
-			resultStr = processInLocationMsg((InLocationMsg)msg, timestamp , nonce);
-		else if (msg instanceof InLinkMsg)
-			resultStr = processInLinkMsg((InLinkMsg)msg, timestamp , nonce);
-		else if (msg instanceof InFollowEvent)
-			resultStr = processInFollowEvent((InFollowEvent)msg, timestamp , nonce);
-		else if (msg instanceof InQrCodeEvent)
-			resultStr = processInQrCodeEvent((InQrCodeEvent)msg, timestamp , nonce);
-		else if (msg instanceof InLocationEvent)
-			resultStr = processInLocationEvent((InLocationEvent)msg, timestamp , nonce);
-		else if (msg instanceof InMenuEvent)
-			resultStr = processInMenuEvent((InMenuEvent)msg, msg, timestamp , nonce);
-		else if (msg instanceof InSpeechRecognitionResults)
-			resultStr = processInSpeechRecognitionResults((InSpeechRecognitionResults)msg, msg, timestamp , nonce);
-		else{
-			resultStr = "未能识别的消息类型。 消息 xml 内容为：\n" +inmsgXml00;
-			System.out.println("未能识别的消息类型。 消息 xml 内容为：\n" +inmsgXml00);	
+		// 解析消息并根据消息类型分发到相应的处理方法
+		if("".equals(inmsgXml00)||inmsgXml00==null){
+			resultStr = nonce_backshow;
+		}else{
+			InMsg msg = InMsgParaser.parse(inmsgXml00); 
+			//System.out.println("222====="+msg.getMsgType());		
+			if (msg instanceof InTextMsg)
+				resultStr = processInTextMsg((InTextMsg)msg , timestamp , nonce);	
+			else if (msg instanceof InImageMsg)
+				resultStr = processInImageMsg((InImageMsg)msg , timestamp , nonce);
+			else if (msg instanceof InVoiceMsg)
+				resultStr = processInVoiceMsg((InVoiceMsg)msg, timestamp , nonce);
+			else if (msg instanceof InVideoMsg)
+				resultStr = processInVideoMsg((InVideoMsg)msg, timestamp , nonce);
+			else if (msg instanceof InLocationMsg)
+				resultStr = processInLocationMsg((InLocationMsg)msg, timestamp , nonce);
+			else if (msg instanceof InLinkMsg)
+				resultStr = processInLinkMsg((InLinkMsg)msg, timestamp , nonce);
+			else if (msg instanceof InFollowEvent)
+				resultStr = processInFollowEvent((InFollowEvent)msg, timestamp , nonce);
+			else if (msg instanceof InQrCodeEvent)
+				resultStr = processInQrCodeEvent((InQrCodeEvent)msg, timestamp , nonce);
+			else if (msg instanceof InLocationEvent)
+				resultStr = processInLocationEvent((InLocationEvent)msg, timestamp , nonce);
+			else if (msg instanceof InMenuEvent)
+				resultStr = processInMenuEvent((InMenuEvent)msg, msg, timestamp , nonce);
+			else if (msg instanceof InSpeechRecognitionResults)
+				resultStr = processInSpeechRecognitionResults((InSpeechRecognitionResults)msg, msg, timestamp , nonce);
+			else{
+				resultStr = "未能识别的消息类型。 消息 xml 内容为：\n" +inmsgXml00;
+				System.out.println("未能识别的消息类型。 消息 xml 内容为：\n" +inmsgXml00);	
+			}
+			
+			//resultStr=echostr;
+			System.out.println("resultStr:"+resultStr);		
+			
+			if("".equals(resultStr)|| resultStr==null ){
+				resultStr = "空值";
+			}			
 		}
 		
-		//resultStr=echostr;
-		System.out.println("resultStr:"+resultStr);		
-		model.put("resultStr", resultStr);
-		if("".equals(resultStr)|| resultStr==null ){
-			resultStr = "空值";
-		}
-		return "msgresult";
+		//model.put("resultStr", resultStr);
+		//return "msgresult";
+		return resultStr ;
 	}
 	
 	
