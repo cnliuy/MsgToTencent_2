@@ -237,6 +237,11 @@ public class HttpKit {
 		return sb.toString();
 	}
 	
+	
+	/**
+	 * 废掉
+	 * */
+	@Deprecated
 	public static String readIncommingRequestData(HttpServletRequest req) {
 		BufferedReader br = null;
 		try {

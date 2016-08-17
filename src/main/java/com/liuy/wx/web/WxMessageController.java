@@ -52,7 +52,7 @@ import com.liuy.wx.tools.StrKit;
 
 @Controller
 public class WxMessageController {
-	private static final String helpStr = "\t发送 help 可获得帮助，发送 \"美女\" 可看美女，发送 news 可看新闻，发送 music 可听音乐，你还可以试试发送图片、语音、位置、收藏等信息，看会有什么 。公众号持续更新中，想要更多惊喜欢迎每天关注 ^_^";
+	private static final String helpStr = "\t发送 help 可获得帮助，你还可以试试发送图片、语音、位置、收藏等信息，看会有什么 。公众号持续更新中，想要更多惊喜欢迎每天关注 ^_^";
 	
 	
 	//@Value("${wx.appId}")
@@ -102,7 +102,33 @@ public class WxMessageController {
 	private MsgEncryptKit msgEncryptKit;
 
 	public String getInMsgXml(HttpServletRequest req , String timestamp,String nonce,String msg_signature) {
-
+		
+		String inMsgXml2 = "";
+		BufferedReader br = null;
+		try {
+			StringBuilder result = new StringBuilder();
+			br = req.getReader();
+			//System.out.println("-------br-----"+br.toString());
+			for (String line=null; (line=br.readLine())!=null;) {
+				result.append(line).append("\n");
+			}			
+			//System.out.println("-------br2-----"+result.toString());
+			inMsgXml2 = result.toString();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (br != null)
+				try {br.close();} catch (IOException e) {e.printStackTrace();}
+		}
+		
+		// 是否需要解密消息
+		if (ApiConfigKitbb.getApiConfig().isMessageencrypt()) {
+			inMsgXml2 = msgEncryptKit.decrypt(inMsgXml2,timestamp,nonce,msg_signature);
+		}
+		
+		return inMsgXml2;
+		
+		/**
 		if (inMsgXml == null) {
 			inMsgXml = HttpKit.readIncommingRequestData(req);
 			System.out.println("-------WxMessageController in getInMsgXml():"+inMsgXml);
@@ -112,6 +138,7 @@ public class WxMessageController {
 			}
 		}
 		return inMsgXml;
+		*/
 	}
 	
 	
@@ -152,9 +179,13 @@ public class WxMessageController {
 		String outMsgXml = OutMsgXmlBuilder.build(outMsg);
 		// 开发模式向控制台输出即将发送的 OutMsg 消息的 xml 内容
 		//if (ApiConfigKit.isDevMode()) {
-			System.out.println("发送消息:");
-			System.out.println(outMsgXml);
-			System.out.println("--------------------------------------------------------------------------------\n");
+		
+			//---调测时 , 打开下面三行
+			/**
+			//System.out.println("发送消息:");
+			//System.out.println(outMsgXml);
+			//System.out.println("--------------------------------------------------------------------------------\n");
+			 */
 		//}
 		boolean messageEncrypt  = apiConfigService.gogetApiConfig().isMessageencrypt();
 		// 是否需要加密消息
@@ -184,10 +215,13 @@ public class WxMessageController {
 				
 		ApiConfig apiConfig = apiConfigService.gogetApiConfig() ;
 		String token = apiConfig.getToken();
-		System.out.println("----appid=="+apiConfig.getAppid() );	
-		System.out.println("----appsecret=="+apiConfig.getAppsecret() );
-		System.out.println("----encodingaeskey=="+apiConfig.getEncodingaeskey() );
-		System.out.println("----token=="+token );
+		//调测时打开下面四行
+		//--System.out.println("----appid=="+apiConfig.getAppid() );	
+		//--System.out.println("----appsecret=="+apiConfig.getAppsecret() );
+		//--System.out.println("----encodingaeskey=="+apiConfig.getEncodingaeskey() );		
+		//--System.out.println("----token=="+token );
+		
+		/**
 		//String s1 = apiConfigService.getAppid();
 		//String s2 = apiConfigService.getAppsecret();
 		//System.out.println("----0000==s1=="+s1 );
@@ -199,101 +233,115 @@ public class WxMessageController {
 		//String s = ApiConfigKitbb.getApiConfig().getAppid();	
 		//ApiConfig result = new ApiConfig("");			
 		//ApiConfig ac = ApiConfigKit.getApiConfig();
-	
-		System.out.println("接收消息:");		
+		 */
+		
+		System.out.println("-----------------------接收消息:-------------------------------");		
 		String timestamp = request.getParameter("timestamp");
-		System.out.println("timestamp:"+timestamp);
+		//System.out.println("timestamp:"+timestamp);
 		String nonce = request.getParameter("nonce");
-		System.out.println("nonce:"+nonce);
+		//System.out.println("nonce:"+nonce);
 		//signature  msg_signature
 		String msg_signature = request.getParameter("signature");	
-		System.out.println("msg_signature:"+msg_signature);
-//		try {
-//			BufferedReader reader1111 = request.getReader();
-//			System.out.print("reader1111:"+reader1111.toString());
-//		} catch (IOException e) {
-//			
-//			e.printStackTrace();
-//		}
+		//System.out.println("msg_signature:"+msg_signature);
+		/**
+		try {
+			BufferedReader reader1111 = request.getReader();
+			System.out.print("reader1111:"+reader1111.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		*/
+		
+		
+		String resultStr = "" ;
+		//if (StrKit.isBlank(msg_signature) || StrKit.isBlank(timestamp) || StrKit.isBlank(nonce)) {
 		if (StrKit.isBlank(msg_signature) || StrKit.isBlank(timestamp) || StrKit.isBlank(nonce)) {
 			//--controller.renderText("check signature failure");
 			//--return false;
+			resultStr = "请求中没有相关参数：signature 和 timestamp 和 nonce 里面有非空参数";
+			
+		}else{
+			String nonce_backshow="";
+			//-- 请求的参数 timestamp和nonce非空， 状态正常。
+			if (checkSignature(token ,msg_signature, timestamp, nonce)) {
+				System.out.println("----checkSignature--ture--  nonce:"+nonce);
+				String echostr = request.getParameter("echostr");
+				System.out.println("--------------------------  echostr:"+echostr);
+				nonce_backshow = echostr ;
+			}		
+			
+			String inmsgXml00= getInMsgXml(request,timestamp,nonce,msg_signature) ;		
+			System.out.println("----  inmsgXml00:"+inmsgXml00);		
+			System.out.println("****  可在此处存入数据库   *****");
+			//inmsgXml00="<xml><ToUserName><![CDATA[gh_7e89261c75cf]]></ToUserName>"
+			//		+ "<FromUserName><![CDATA[oNxqNwR4ydOPSZNAFtIHJ28-zmL4]]></FromUserName>"
+			//		+ "<CreateTime>1460792070</CreateTime>"
+			//		+ "<MsgType><![CDATA[event]]></MsgType>"
+			//		+ "<Event><![CDATA[unsubscribe]]></Event>"
+			//		+ "<EventKey><![CDATA[]]></EventKey>"
+			//		+ "</xml>";
+			
+			// 解析消息并根据消息类型分发到相应的处理方法
+			if("".equals(inmsgXml00)||inmsgXml00==null){
+				resultStr = nonce_backshow;
+			}else{
+				InMsg msg = InMsgParaser.parse(inmsgXml00); 
+				//System.out.println("222====="+msg.getMsgType());		
+				if (msg instanceof InTextMsg)
+					resultStr = processInTextMsg((InTextMsg)msg , timestamp , nonce);	
+				else if (msg instanceof InImageMsg)
+					resultStr = processInImageMsg((InImageMsg)msg , timestamp , nonce);
+				else if (msg instanceof InVoiceMsg)
+					resultStr = processInVoiceMsg((InVoiceMsg)msg, timestamp , nonce);
+				else if (msg instanceof InVideoMsg)
+					resultStr = processInVideoMsg((InVideoMsg)msg, timestamp , nonce);
+				else if (msg instanceof InLocationMsg)
+					resultStr = processInLocationMsg((InLocationMsg)msg, timestamp , nonce);
+				else if (msg instanceof InLinkMsg)
+					resultStr = processInLinkMsg((InLinkMsg)msg, timestamp , nonce);
+				else if (msg instanceof InFollowEvent)
+					resultStr = processInFollowEvent((InFollowEvent)msg, timestamp , nonce);
+				else if (msg instanceof InQrCodeEvent)
+					resultStr = processInQrCodeEvent((InQrCodeEvent)msg, timestamp , nonce);
+				else if (msg instanceof InLocationEvent)
+					resultStr = processInLocationEvent((InLocationEvent)msg, timestamp , nonce);
+				else if (msg instanceof InMenuEvent)
+					resultStr = processInMenuEvent((InMenuEvent)msg, msg, timestamp , nonce);
+				else if (msg instanceof InSpeechRecognitionResults)
+					resultStr = processInSpeechRecognitionResults((InSpeechRecognitionResults)msg, msg, timestamp , nonce);
+				else{
+					resultStr = "未能识别的消息类型。 消息 xml 内容为：\n" +inmsgXml00;
+					System.out.println("--------------------------  msg:"+msg);	
+				}
+							
+				System.out.println("resultStr:"+resultStr);		
+				
+				if("".equals(resultStr)|| resultStr==null ){
+					resultStr = "空值";
+				}			
+			}
+			
 		}
 		
 
-		String nonce_backshow="";
-		if (checkSignature(token ,msg_signature, timestamp, nonce)) {
-			System.out.println("-------ture----nonce:"+nonce);
-			String echostr = request.getParameter("echostr");
-			System.out.println("-------echostr----:"+echostr);
-			nonce_backshow = echostr ;
-		}		
+	
+
+		
+		//model.put("resultStr", resultStr);
+		//return "msgresult";
 		/**
 		BufferedReader rd;
 		try {
 			rd = request.getReader();
 			String str123;
 			while ( (str123=rd.readLine())!=null) {
-				System.out.println("000:  "+str123);
+				System.out.println("1000  request:  "+str123);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		*/		
-		String inmsgXml00= getInMsgXml(request,timestamp,nonce,msg_signature) ;		
-		System.out.println("inmsgXml00:"+inmsgXml00);		
-		System.out.println("可在此处存入数据库");
-		//inmsgXml00="<xml><ToUserName><![CDATA[gh_7e89261c75cf]]></ToUserName>"
-		//		+ "<FromUserName><![CDATA[oNxqNwR4ydOPSZNAFtIHJ28-zmL4]]></FromUserName>"
-		//		+ "<CreateTime>1460792070</CreateTime>"
-		//		+ "<MsgType><![CDATA[event]]></MsgType>"
-		//		+ "<Event><![CDATA[unsubscribe]]></Event>"
-		//		+ "<EventKey><![CDATA[]]></EventKey>"
-		//		+ "</xml>";
-		String resultStr = "" ;
-		// 解析消息并根据消息类型分发到相应的处理方法
-		if("".equals(inmsgXml00)||inmsgXml00==null){
-			resultStr = nonce_backshow;
-		}else{
-			InMsg msg = InMsgParaser.parse(inmsgXml00); 
-			//System.out.println("222====="+msg.getMsgType());		
-			if (msg instanceof InTextMsg)
-				resultStr = processInTextMsg((InTextMsg)msg , timestamp , nonce);	
-			else if (msg instanceof InImageMsg)
-				resultStr = processInImageMsg((InImageMsg)msg , timestamp , nonce);
-			else if (msg instanceof InVoiceMsg)
-				resultStr = processInVoiceMsg((InVoiceMsg)msg, timestamp , nonce);
-			else if (msg instanceof InVideoMsg)
-				resultStr = processInVideoMsg((InVideoMsg)msg, timestamp , nonce);
-			else if (msg instanceof InLocationMsg)
-				resultStr = processInLocationMsg((InLocationMsg)msg, timestamp , nonce);
-			else if (msg instanceof InLinkMsg)
-				resultStr = processInLinkMsg((InLinkMsg)msg, timestamp , nonce);
-			else if (msg instanceof InFollowEvent)
-				resultStr = processInFollowEvent((InFollowEvent)msg, timestamp , nonce);
-			else if (msg instanceof InQrCodeEvent)
-				resultStr = processInQrCodeEvent((InQrCodeEvent)msg, timestamp , nonce);
-			else if (msg instanceof InLocationEvent)
-				resultStr = processInLocationEvent((InLocationEvent)msg, timestamp , nonce);
-			else if (msg instanceof InMenuEvent)
-				resultStr = processInMenuEvent((InMenuEvent)msg, msg, timestamp , nonce);
-			else if (msg instanceof InSpeechRecognitionResults)
-				resultStr = processInSpeechRecognitionResults((InSpeechRecognitionResults)msg, msg, timestamp , nonce);
-			else{
-				resultStr = "未能识别的消息类型。 消息 xml 内容为：\n" +inmsgXml00;
-				System.out.println("未能识别的消息类型。 消息 xml 内容为：\n" +inmsgXml00);	
-			}
-			
-			//resultStr=echostr;
-			System.out.println("resultStr:"+resultStr);		
-			
-			if("".equals(resultStr)|| resultStr==null ){
-				resultStr = "空值";
-			}			
-		}
+		*/
 		
-		//model.put("resultStr", resultStr);
-		//return "msgresult";
 		return resultStr ;
 	}
 	
