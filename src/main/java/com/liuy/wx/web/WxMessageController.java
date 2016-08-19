@@ -16,8 +16,8 @@ import org.springframework.util.SocketUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-
-
+import com.liuy.config.ConfigConstant;
+import com.liuy.wx.http.tourl.UseHttpKit;
 import com.liuy.wx.sdk.msg.InMsgParaser;
 import com.liuy.wx.sdk.msg.OutMsgXmlBuilder;
 import com.liuy.wx.sdk.msg.in.InImageMsg;
@@ -100,6 +100,10 @@ public class WxMessageController {
 	
 	@Autowired
 	private MsgEncryptKit msgEncryptKit;
+	
+	@Autowired
+	private UseHttpKit useHttpKit;
+	
 
 	public String getInMsgXml(HttpServletRequest req , String timestamp,String nonce,String msg_signature) {
 		
@@ -203,6 +207,46 @@ public class WxMessageController {
 	//private ApiConfigKit apiConfigKit;
 	
 	
+	/**
+	 * 	添加   客服
+	 * 
+	 * */
+	@RequestMapping("/AddCustom")
+	public @ResponseBody String AddCustom(Map<String, Object> model , HttpServletRequest request) {
+		String access_token = "uuyTcGsQPP5Rzg3V-5vo14FhmjCpoBaMgS8NcmTb4SYHhHZF_ratvbLr-o9xq-gHJTRYrFzLFo-ziDm-nUMapiNODla6rp44mlA54ssZit96mp11WzdbE0RnldPwoFSfVLPbAGARHL";		
+		String url= "https://api.weixin.qq.com/customservice/kfaccount/add?access_token="+access_token ;
+		String data  = 
+				"{"
+						+ "\"kf_account\" : \"闫旭\","
+						+ "\"nickname\" : \"客服6\","
+						+ "\"password\" : \"passwd6\","
+				+ "}";
+		System.out.println("-----------------------------------------------------");
+		System.out.println(data);
+		System.out.println("-----------------------------------------------------");
+		String repson = HttpKit.post(url, data);
+		System.out.println(repson);
+		return repson;
+	}
+	
+	
+	
+	
+		
+	/**
+	 * 	查看   客服
+	 * 
+	 * */
+	@RequestMapping("/CustomList")
+	public @ResponseBody String CustomList(Map<String, Object> model , HttpServletRequest request) {		
+		String access_token = "uuyTcGsQPP5Rzg3V-5vo14FhmjCpoBaMgS8NcmTb4SYHhHZF_ratvbLr-o9xq-gHJTRYrFzLFo-ziDm-nUMapiNODla6rp44mlA54ssZit96mp11WzdbE0RnldPwoFSfVLPbAGARHL";		
+		String url= "https://api.weixin.qq.com/cgi-bin/customservice/getonlinekflist?access_token="+access_token ;
+		System.out.println("-----------------------------------------------------");
+		String repson = HttpKit.get(url);
+		System.out.println(repson);
+		System.out.println("-----------------------------------------------------");
+		return repson;
+	}
 	
 	/**
 	 * 
@@ -211,7 +255,7 @@ public class WxMessageController {
 	 * 
 	 * */
 	@RequestMapping("/WxMessage")
-	public @ResponseBody String welcome(Map<String, Object> model , HttpServletRequest request) {
+	public @ResponseBody String WxMessage(Map<String, Object> model , HttpServletRequest request) {
 				
 		ApiConfig apiConfig = apiConfigService.gogetApiConfig() ;
 		String token = apiConfig.getToken();
@@ -264,9 +308,9 @@ public class WxMessageController {
 			String nonce_backshow="";
 			//-- 请求的参数 timestamp和nonce非空， 状态正常。
 			if (checkSignature(token ,msg_signature, timestamp, nonce)) {
-				System.out.println("----checkSignature--ture--  nonce:"+nonce);
+				//--- System.out.println("----checkSignature--ture--  nonce:"+nonce);
 				String echostr = request.getParameter("echostr");
-				System.out.println("--------------------------  echostr:"+echostr);
+				//---System.out.println("--------------------------  echostr:"+echostr);
 				nonce_backshow = echostr ;
 			}		
 			
@@ -357,7 +401,7 @@ public class WxMessageController {
 	 */
 	protected String processInTextMsg(InTextMsg inTextMsg ,String timestamp ,String nonce) {
 		System.out.println("in method : processInTextMsg()");
-		String linkadd ="http://211.148.171.93/InftoTence/";
+		String linkadd = ConfigConstant.linkadd;
 		String msgContent = inTextMsg.getContent().trim();
 		String resultstr = "";
 		// 帮助提示
@@ -393,6 +437,16 @@ public class WxMessageController {
 			// outMsg.addNews("秀色可餐", "JFinal Weixin 极速开发就是这么爽，有木有 ^_^", "http://mmbiz.qpic.cn/mmbiz/zz3Q6WSrzq2GJLC60ECD7rE7n1cvKWRNFvOyib4KGdic3N5APUWf4ia3LLPxJrtyIYRx93aPNkDtib3ADvdaBXmZJg/0", "http://mp.weixin.qq.com/s?__biz=MjM5ODAwOTU3Mg==&mid=200987822&idx=1&sn=7eb2918275fb0fa7b520768854fb7b80#rd");
 			
 			resultstr = render(outMsg,timestamp ,nonce);
+		}
+		else if ("客服1".equalsIgnoreCase(msgContent)) {
+			OutNewsMsg outMsg = new OutNewsMsg(inTextMsg);
+			String msgType= "transfer_customer_service";
+			String fromUserName = "o7iB-tzve8myexXmffnitXik858w";   //---ly
+			outMsg.setMsgType(msgType);
+			outMsg.setFromUserName(fromUserName);			
+			//outMsg.addNews("我们只看美女", "又一大波美女来袭，我们只看美女 ^_^", linkadd+"/pic/mv02.png", linkadd+"news/news3.jsp");
+			resultstr = render(outMsg,timestamp ,nonce);
+			
 		}
 		// 其它文本消息直接返回原值 + 帮助提示
 		else {
