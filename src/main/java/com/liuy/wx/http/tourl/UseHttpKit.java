@@ -14,7 +14,7 @@ public class UseHttpKit {
 
 	public static void main__bak(String[] args) {
 		String access_token = "uuyTcGsQPP5Rzg3V-5vo14FhmjCpoBaMgS8NcmTb4SYHhHZF_ratvbLr-o9xq-gHJTRYrFzLFo-ziDm-nUMapiNODla6rp44mlA54ssZit96mp11WzdbE0RnldPwoFSfVLPbAGARHL";
-		String url= "https://api.weixin.qq.com/customservice/kfaccount/add?access_token="+access_token ;
+		String url= "https://api.weixin.qq.com/customservice/kfaccount/add?access_token="+access_token ;		
 		String data  = 
 				"{"
 						+ "\"kf_account\" : \"闫旭\","
@@ -24,6 +24,9 @@ public class UseHttpKit {
 		System.out.println(data);
 		System.out.println("-----------------------------------------------------");
 		String repson = HttpKit.post(url, data);
+		
+		
+
 		System.out.println(repson);
 	}
 

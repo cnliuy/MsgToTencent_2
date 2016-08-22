@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.liuy.wx.tools.ApiConfig;
 import com.liuy.wx.tools.ApiConfigKitbb;
@@ -41,6 +42,8 @@ import com.liuy.wx.tools.ApiConfigService;
 //@Configuration
 //@EnableAutoConfiguration
 //@ComponentScan
+
+@EnableScheduling //打开注释， 启动后 ，ScheduledTasks类 （com.liuy.config ）自动开启定时任务。
 
 @SpringBootApplication
 //@EnableConfigurationProperties({WiselySettings.class,Wisely2Settings.class})  

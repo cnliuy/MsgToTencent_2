@@ -121,6 +121,13 @@
 			<version>2.3.20</version>
 		</dependency>
 		
+		<!-- org.json工具 -->
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+		    <groupId>org.json</groupId>
+		    <artifactId>json</artifactId>
+		    <version>20160212</version>
+		</dependency>		
 
 	</dependencies>
 	

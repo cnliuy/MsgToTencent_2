@@ -52,9 +52,9 @@ import com.liuy.wx.tools.StrKit;
 
 @Controller
 public class WxMessageController {
+	
 	private static final String helpStr = "\t发送 help 可获得帮助，你还可以试试发送图片、语音、位置、收藏等信息，看会有什么 。公众号持续更新中，想要更多惊喜欢迎每天关注 ^_^";
-	
-	
+		
 	//@Value("${wx.appId}")
 	//private String appId ;
 	//@Value("${wx.appSecret}")
@@ -228,8 +228,37 @@ public class WxMessageController {
 		System.out.println(repson);
 		return repson;
 	}
-	
-	
+
+	/**
+	 * 	发送  客服消息
+	 * /SendCustomMsg?openId=o7iB-tzve8myexXmffnitXik858w
+	 * 
+	 * */
+	@RequestMapping("/SendCustomMsg")
+	public @ResponseBody String SendCustomMsg(Map<String, Object> model , HttpServletRequest request) {
+		String access_token = gogetAccesstokenFromMem();
+		String repson = "";
+		if(access_token.equals("err")){
+			repson="{msg:\"获取Accesstoken失效。\"}";
+		}else{
+			String url_sendkfmsg = ConfigConstant.url_sendkfmsg + access_token ;
+			String openId = request.getParameter("openId") ;
+			//System.out.println("------------openId:"+openId);
+			String data_sendkfmsg  = "{"
+					+ "\"touser\": \""+openId+"\","
+					+ "\"msgtype\": \"text\","
+					+ "\"text\": {\"content\": \"你好 Hello World 2356\"},"
+					+ "\"customservice\": {\"kf_account\": \"test1@kftest\"}"
+					+ "}";
+			repson = HttpKit.post(url_sendkfmsg, data_sendkfmsg);
+			
+			System.out.println("-----------------------------------------------------");
+			System.out.println(data_sendkfmsg);
+			System.out.println("-----------------------------------------------------");		
+			System.out.println(repson);			
+		}
+		return repson;
+	}
 	
 	
 		
@@ -573,6 +602,13 @@ public class WxMessageController {
 	}
 	
 
+	public String gogetAccesstokenFromMem() {		
+		String at = ConfigConstant.accesstoken;
+		if("".equals(at)||at == null){
+			at = "err";
+		}
+		return at;
+	}
 	
 	/**
 	 * 实现父类抽方法，处理接收语音识别结果
