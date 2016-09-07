@@ -108,7 +108,7 @@ public class OutMsgXmlBuilder {
 		msg.setToUserName("to james");
 		msg.setFromUserName("from james");
 		msg.setCreateTime(msg.now());
-		msg.setContent("jfinal weixin 极速开发平台碉堡了");
+		msg.setContent("tianjin1 weixin 开发平台");
 		String xml = OutMsgXmlBuilder.build(msg);
 		System.out.println(xml);
 	}

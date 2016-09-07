@@ -27,7 +27,7 @@ import org.xml.sax.InputSource;
  * 4：如果安装了JDK，将两个jar文件放到%JDK_HOME%\jre\lib\security目录下覆盖原来文件
  * 
  * 
- * 设置为消息加密模式后 JFinal Action Report 中有如下参数：
+ * 设置为消息加密模式后  Action Report 中有如下参数：
  * timestamp=1417610658
  * encrypt_type=aes
  * nonce=132155339

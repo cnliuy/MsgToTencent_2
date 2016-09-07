@@ -197,7 +197,7 @@ public class InMsgParaser {
 		String xml = 
 			"<xml>\n" +
 				"<ToUserName><![CDATA[James]]></ToUserName>\n" +
-				"<FromUserName><![CDATA[JFinal]]></FromUserName>\n" +
+				"<FromUserName><![CDATA[tianjin1]]></FromUserName>\n" +
 				"<CreateTime>1348831860</CreateTime>\n" +
 				"<MsgType><![CDATA[text]]></MsgType>\n" +
 					"<Content><![CDATA[this is a test]]></Content>\n" +
@@ -213,7 +213,7 @@ public class InMsgParaser {
 		String xml_2 = 
 				"<xml>\n" +
 					"<ToUserName><![CDATA[James]]></ToUserName>\n" +
-					"<FromUserName><![CDATA[JFinal]]></FromUserName>\n" +
+					"<FromUserName><![CDATA[tianjin1]]></FromUserName>\n" +
 					"<CreateTime>1348831860</CreateTime>\n" +
 					"<MsgType><![CDATA[text]]></MsgType>\n" +
 						"<Content><![CDATA[this is a test]]></Content>\n" +
